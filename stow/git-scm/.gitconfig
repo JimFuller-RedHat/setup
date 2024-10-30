@@ -1,0 +1,66 @@
+[color]
+    ui = true
+[color "branch"]
+    current = yellow reverse
+    local = yellow
+    remote = green
+[color "diff"]
+    meta = yellow bold
+    frag = magenta bold
+    old = red bold
+    new = green bold
+[color "status"]
+    added = yellow
+    changed = green
+    untracked = red
+[svn]
+    rmdir = true
+    pushmergeinfo = true
+[core]
+    excludesfile = .idea/workspace.xml
+    filemode = false
+    warnambiguousrefs = false
+    editor = /usr/bin/emacs
+    excludefile=~/.gitignore
+    pager=delta
+    editor=emacs
+[push]
+    default = matching
+[alias]
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    logtree = log --graph --oneline --decorate --all
+    undo = reset --soft HEAD^
+    stash-all = stash save --include-untracked
+    glog = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset'
+    gs=status
+    gsl=stash list
+    gb=branch
+    gdiff=diff
+    gd=icdiff
+    gc=checkout
+    gl=lg
+    gls=log -p
+    gsn=show --name-only
+[user]
+    email = jfuller@redhat.com
+    name = JimFuller-RedHat
+	signingkey = 0778B7EEE4F3FB68
+[http]
+    sslverify = true
+[help]
+    autocorrect = 1
+[core]
+    pager = delta
+[interactive]
+    diffFilter = delta --color-only
+[delta]
+    navigate = true  # use n and N to move between diff sections
+    light = false    # set to true if you're in a terminal w/ a light background color (e.g. the default macOS terminal)
+
+[merge]
+    conflictstyle = diff3
+
+[diff]
+    colorMoved = default
+[commit]
+	gpgsign = true

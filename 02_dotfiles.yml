@@ -1,0 +1,21 @@
+# tmux setup playbook
+#
+#   ansible-tmux.yml
+---
+- name: emacs setup
+  hosts: all
+  tasks:
+    - name: check mandatory variables are defined
+      assert:
+        that:
+          - user is defined
+    - name: install other dotfile
+      command: /usr/bin/stow -d ./stow -t /home/jfuller -S other
+    - name: install git dotfile
+      command: /usr/bin/stow -d ./stow -t /home/jfuller -S git-scm
+    - name: install curl dotfile
+      command: /usr/bin/stow -d ./stow -t /home/jfuller -S curl
+    - name: install zsh dotfile
+      command: /usr/bin/stow -d ./stow -t /home/jfuller -S zsh
+    - name: install emacs dotfile
+      command: /usr/bin/stow -d ./stow -t /home/jfuller -S emacs

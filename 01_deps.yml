@@ -1,0 +1,61 @@
+# tmux setup playbook
+#
+#   ansible-tmux.yml
+---
+- name: emacs setup
+  hosts: all
+  tasks:
+    - name: check mandatory variables are defined
+      assert:
+        that:
+          - user is defined
+    - name: install rofi
+      dnf:
+        name: rofi
+        state: present
+    - name: install stow
+      dnf:
+        name: stow
+        state: present
+    - name: install latest curl
+      dnf:
+        name: curl
+        state: present
+    - name: install pycharm
+      dnf:
+        name: pycharm-community
+        state: present
+    - name: Install zsh
+      package:
+        name: zsh
+        state: present
+#    - name: change shell
+#      command: /usr/bin/usermod -s /bin/zsh {{user}}
+    - name: install emacs
+      dnf:
+        name: emacs
+        state: present
+    - name: Install bat
+      package:
+        name: bat
+        state: present
+    - name: Install wireshark
+      package:
+        name: wireshark
+        state: present
+    - name: Install podman
+      package:
+        name: podman
+        state: present
+    - name: Install rust
+      package:
+        name: rust
+        state: present
+    - name: Install cargo
+      package:
+        name: cargo
+        state: present
+    - name: Install pg
+      package:
+        name: postgresql
+        state: present

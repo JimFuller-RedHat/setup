@@ -1,0 +1,12 @@
+# system setup playbook
+# one playbook to rule them all
+#
+#   ansible.yml
+---
+
+- name: deps
+  import_playbook: 01_deps.yml
+- name: dotfiles
+  import_playbook: 02_dotfiles.yml
+- name: pythondeps
+  import_playbook: 03_pip.yml

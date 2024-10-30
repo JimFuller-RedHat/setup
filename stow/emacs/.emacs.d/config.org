@@ -1,0 +1,641 @@
+#+BABEL: :cache yes
+#+PROPERTY: header-args :tangle yes :comments no
+#+TITLE: Emacs Configuration
+#+AUTHOR: Jim
+* Editing
+*** whitespace
+ Trailing whitespace is not normally useful. Remove it always on save in the *before-save-hook*.
+ #+BEGIN_SRC emacs-lisp
+;;   (add-hook 'before-save-hook 'delete-trailing-whitespace)
+ #+END_SRC
+*** dired
+
+*** query replace
+
+  #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "s-r") 'query-replace)
+  #+END_SRC
+
+*** jump
+
+***
+  #+BEGIN_SRC emacs-lisp
+    (global-set-key (kbd "s-/") 'avy-goto-char)
+  #+END_SRC
+
+***
+
+*** the rest
+
+    #+begin_src emacs-lisp
+         ;; The first commandment ... never mix tabs and spaces
+         (setq-default indent-tabs-mode nil)
+
+         (set-fill-column 110)
+
+         (delete-selection-mode t)
+
+      ;;   (global-display-line-numbers-mode t)
+
+         (column-number-mode)
+
+      (setq undo-limit 800000)
+      (setq undo-strong-limit 1200000)
+
+    #+end_src
+
+* Windowing
+ #+BEGIN_SRC emacs-lisp
+   (global-set-key (kbd "s-w") 'ace-window)
+ #+END_SRC
+
+* Control
+*** debug on error
+      Not having to start *emacs* with *--debug-init* is useful.
+  #+BEGIN_SRC emacs-lisp
+;;    (setq debug-on-error t)
+  #+END_SRC
+
+*** encoding
+
+   #+begin_src emacs-lisp
+
+     ;; (set-charset-priority 'unicode)
+     ;; (setq locale-coding-system 'utf-8)
+     ;; (set-terminal-coding-system 'utf-8)
+     ;; (set-keyboard-coding-system 'utf-8)
+     ;; (set-selection-coding-system 'utf-8)
+     ;; (prefer-coding-system 'utf-8)
+     ;; (setq default-process-coding-system '(utf-8-unix . utf-8-unix))
+
+   #+end_src
+
+*** text scale
+     #+begin_src emacs-lisp
+
+    ;; Accept 'y' in lieu of 'yes'.
+    (defalias 'yes-or-no-p 'y-or-n-p)
+
+    ;; text scale increase
+    (global-set-key (kbd "C-+") 'text-scale-increase)
+    (global-set-key (kbd "C--") 'text-scale-decrease)
+     #+end_src
+
+*** indent
+     #+begin_src emacs-lisp
+       (electric-indent-local-mode 1)
+
+       ;; make return key also do indent, globally
+       (electric-indent-mode 1)
+     #+end_src
+*** the rest
+     #+begin_src emacs-lisp
+
+    (setq shell-file-name "zsh")
+
+    ;; Accept 'y' in lieu of 'yes'.
+    (defalias 'yes-or-no-p 'y-or-n-p)
+
+    (setq
+     make-backup-files nil
+     auto-save-default nil
+     create-lockfiles nil)
+
+    (ignore-errors (set-frame-font "Menlo-14"))
+
+    (when (window-system)
+      (tool-bar-mode -1)
+      (scroll-bar-mode -1)
+      (tooltip-mode -1)
+      (fringe-mode -1))
+
+    (desktop-save-mode 1)
+    (icomplete-mode 1)
+
+    ;;compile key
+    (global-set-key "\C-cc" 'compile)
+
+    ;; move windows
+    (global-set-key (kbd "C-<right>") 'other-window)
+    (global-set-key (kbd "C-<left>") 'other-window)
+
+     #+end_src
+* Display
+*** we aren't banging rocks anymore
+  Double spacing after a line isn't needed. We aren't animals emacs, we have computers.
+
+  #+BEGIN_SRC emacs-lisp
+    (set-default 'sentence-end-double-space nil)
+  #+END_SRC
+*** theme
+  #+BEGIN_SRC emacs-lisp
+
+    (defadvice load-theme (before theme-dont-propagate activate)
+      (mapc #'disable-theme custom-enabled-themes))
+
+    (use-package gruvbox-theme
+      :ensure t
+      :config
+
+      (defun load-dark-theme ()
+        (interactive)
+        (disable-theme 'solarized-dark-high-contrast)
+        (load-theme 'solarized-dark-high-contrast t)
+        (setq-default input-block "#2A2A2A"))
+        ;; (set-face-attribute 'org-block nil :background "#2A2A2A")
+        ;; (set-face-attribute 'ein:cell-input-area nil :background "#2A2A2A"))
+
+      :bind(("C-c t" . load-dark-theme)))
+
+    (use-package solarized-theme
+      :ensure t
+      :demand t
+      :config
+      (setq solarized-use-variable-pitch nil
+            solarized-scale-org-headlines nil)
+
+      (defun load-light-theme ()
+        (interactive)
+        (disable-theme 'gruvbox)
+        (load-theme 'solarized-light t)
+        (setq-default input-block "#F9F2D9"))
+        ;; (set-face-attribute 'org-block nil :background "#f9f2d9")
+        ;; (set-face-attribute 'ein:cell-input-area nil :background "#f9f2d9"))
+
+      :bind(("C-c z" . load-light-theme)))
+
+    ;; Start with solarized-light by default
+    (load-dark-theme)
+ #+END_SRC
+*** line wrap
+
+  Line wrapping is useful. Enable it globally for a start.
+
+  Need word-wrap so kill line kills the line, not the displayed line.
+
+  #+BEGIN_SRC emacs-lisp
+    (global-visual-line-mode t)
+    (custom-set-variables '(word-wrap t))
+  #+END_SRC
+
+*** the rest
+    #+begin_src emacs-lisp
+
+      (use-package rainbow-blocks)
+
+      (use-package rainbow-delimiters
+         :ensure t
+         :hook (prog-mode . rainbow-delimiters-mode))
+
+        (show-paren-mode)
+
+        ;; Anti-aliasing
+        (setq mac-allow-anti-aliasing t)
+
+        (require 'hl-line)
+        (add-hook 'prog-mode-hook #'hl-line-mode)
+        (add-hook 'text-mode-hook #'hl-line-mode)
+        (set-face-attribute 'hl-line nil :background "gray26")
+
+        (set-face-attribute 'region nil :background "#666" :foreground "#f7c684")
+
+    #+end_src
+* Packages
+*** Autocomplete
+
+  Completion in Emacs is sort of a fraught enterprise, given the existence of ~pcomplete~, ~hippie-expand~, and ~complete.el~. ~company~ is the least problematic and most modern of these alternatives, though it's kind of a bear to configure. Its interface is not so nice by default but all the frontends flicker terribly if you're typing quickly, which is just spectacularly distracting.
+
+  TODO: C-n and C-p should work in the company completion map, but I'm so tired of wrestling with company that I truly don't care.
+
+  #+begin_src emacs-lisp
+    (use-package company
+      :diminish
+      :bind (("C-." . #'company-complete))
+      :hook (prog-mode . company-mode)
+      :custom
+      (company-dabbrev-downcase nil "Don't downcase returned candidates.")
+      (company-show-numbers t "Numbers are helpful.")
+      (company-tooltip-limit 20 "The more the merrier.")
+      (company-tooltip-idle-delay 0.4 "Faster!")
+      (company-async-timeout 20 "Some requests can take a long time. That's fine.")
+      :config
+
+      ;; Use the numbers 0-9 to select company completion candidates
+      (let ((map company-active-map))
+        (mapc (lambda (x) (define-key map (format "%d" x)
+			    `(lambda () (interactive) (company-complete-number ,x))))
+	      (number-sequence 0 9))))
+  #+end_src
+*** all the rest
+    #+begin_src emacs-lisp
+
+             (use-package which-key
+               :ensure t
+               :config (which-key-mode))
+
+             (require 'shell)
+
+             (use-package undo-tree
+               :diminish
+               :bind (("C-c _" . undo-tree-visualize))
+               :config
+               (global-undo-tree-mode +1)
+               (unbind-key "M-_" undo-tree-map))
+
+
+             (use-package dimmer
+               :custom (dimmer-fraction 0.1)
+               :config (dimmer-mode))
+
+             (use-package multiple-cursors
+               :bind (("C-c m m" . #'mc/edit-lines )
+                      ("C-c m d" . #'mc/mark-all-dwim )))
+
+             ;; gud debugger with lldb
+             (require 'gud)
+
+             ;;multiterm
+             (use-package 'multi-term)
+             (setq multi-term-program "/bin/zsh")
+
+             (use-package magit
+               :ensure t
+               :config
+               (setq magit-section-initial-visibility-alist '((unpushed . show)))
+               (git-commit-turn-on-auto-fill)
+               (add-hook 'git-commit-mode-hook (lambda () (setq-local fill-column 72)))
+               :bind (("C-x g" . magit-status)))
+
+             (use-package magit-todos
+               :ensure t
+               :config (magit-todos-mode))
+
+             (use-package flyspell
+               :ensure t
+               :config
+               (setq ispell-program-name "aspell"
+                     ispell-dictionary "english")
+               (set-face-underline  'flyspell-incorrect '(:color "#dc322f" :style line))
+               (set-face-underline  'flyspell-duplicate '(:color "#e5aa00" :style line))
+
+               (defun change-dictionary-spanish ()
+                 (interactive)
+                 (ispell-change-dictionary "espanol"))
+
+               (defun change-dictionary-english ()
+                 (interactive)
+                 (ispell-change-dictionary "english"))
+
+               :hook (org-mode . (lambda () (setq ispell-parser 'tex)))
+               :bind (:map flyspell-mode-map
+                           ("C-c d s" . change-dictionary-spanish)
+                           ("C-c d e" . change-dictionary-english)))
+
+
+          (use-package dockerfile-mode
+            :ensure t)
+
+          (use-package docker-tramp
+            :ensure t)
+
+
+      (use-package mastodon
+        :ensure t
+        :config
+        (mastodon-discover))
+
+    (setq mastodon-instance-url "https://mastodon.social"
+          mastodon-active-user "jimfuller")
+      
+    #+end_src
+* Functions
+* Fonts
+  #+begin_src emacs-lisp
+    (set-face-attribute 'default nil
+                        :family "Jetbrains Mono" :height 200 :weight
+                        'normal)
+  #+end_src
+
+* Helm
+  #+begin_src emacs-lisp
+            (use-package helm)
+            (use-package helm-rg)
+    (use-package helm-swoop)
+;; find file
+(global-set-key (kbd "C-c j") `helm-find-files)
+
+(global-set-key (kbd "C-b") 'helm-mark-ring)
+(global-set-key (kbd "C-c m") 'helm-global-mark-ring)
+
+(eval-after-load 'helm-grep
+  '(setq helm-grep-default-command helm-grep-default-recurse-command))
+
+(add-hook 'eshell-mode-hook
+          #'(lambda ()
+              (define-key eshell-mode-map (kbd "M-l")  'helm-eshell-history)))
+
+;; for shell-mode
+(define-key shell-mode-map (kbd "C-c C-l") 'helm-comint-input-ring)
+
+(global-set-key (kbd "M-x") 'helm-M-x)
+(global-set-key (kbd "s-<return>") 'helm-mini)
+(global-set-key (kbd "s-'") 'helm-swoop)
+(global-set-key (kbd "s-;") 'helm-multi-swoop-all-from-isearch)
+
+(helm :sources '(
+                 helm-source-buffers-list
+                 helm-source-locate
+                 helm-source-filter
+                 helm-source-buffer-not-found)
+      :buffer "*helm all the things*")
+
+(global-set-key (kbd "s-[") 'helm-ack)
+
+(global-set-key (kbd "M-<left>") 'previous-buffer)
+(global-set-key (kbd "M-<right>") 'next-buffer)
+
+;; helm & company-mode integration
+(eval-after-load 'company
+  '(progn
+     (define-key company-mode-map (kbd "C-:") 'helm-company)
+     (define-key company-active-map (kbd "C-:") 'helm-company)))
+
+;;
+(setq helm-split-window-in-side-p t)
+  (when (executable-find "ag-grep")
+    (setq helm-grep-default-command "ag-grep -Hn --no-group --no-color %e %p %f"
+          helm-grep-default-recurse-command "ag-grep -H --no-group --no-color %e %p %f"))
+
+  (setq helm-M-x-fuzzy-match t
+        helm-recentf-fuzzy-match t
+        helm-buffers-fuzzy-matching t
+        helm-locate-fuzzy-match nil
+        helm-mode-fuzzy-match t)
+
+  (helm-autoresize-mode 1)
+  (setq helm-autoresize-max-height 50
+        helm-autoresize-min-height 50)
+
+  (setq helm-echo-input-in-header-line t)
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*helm.*\\*\\'"
+                 (display-buffer-in-side-window)
+                 (inhibit-same-window . t)
+                 (window-height . 0.2)))
+
+(global-set-key (kbd "M-y") 'helm-show-kill-ring)
+(global-set-key (kbd "C-<return>") 'helm-buffers-list)
+
+  #+end_src
+* Org
+  #+begin_src emacs-lisp
+
+    (use-package org
+      :pin gnu)
+
+    (setq org-hide-leading-stars 0)
+
+
+;;    (setq org-directory "/Volumes/home/0_jd/60-69-code/63.org/")
+
+
+;;    (setq org-agenda-files
+  ;;        (list "/Volumes/home/0_jd/60-69-code/63.org/scratch.org"))
+
+
+    (setq org-todo-keywords
+          '((sequence "MEETING" "TODO" "EMAILED" "EVENT" "BUG" "TASK" "INPROGRESS" "TESTING" "|" "DONE" "DELEGATED" "WONTDO" "INVALID")))
+
+    ;; Custom key bindings for agenda
+
+    (global-set-key (kbd "C-c a") `org-agenda)
+
+
+    ;; org-babel
+    (setq org-confirm-babel-evaluate nil)
+    (setq org-src-fontify-natively t)
+    (setq org-src-tab-acts-natively t)
+
+    ;; any headline with level <= 2 is a target
+    (setq org-refile-targets '((nil :maxlevel . 2)
+                                            ; all top-level headlines in the
+                                            ; current buffer are used (first) as a
+                                            ; refile target
+                               (org-agenda-files :maxlevel . 2)))
+
+    ;; provide refile targets as paths, including the file name
+    ;; (without directory) as level 1 of the path
+    (setq org-refile-use-outline-path 'file)
+
+    ;; allow to create new nodes (must be confirmed by the user) as
+    ;; refile targets
+    (setq org-refile-allow-creating-parent-nodes 'confirm)
+
+    ;; refile only within the current buffer
+    (defun my/org-refile-within-current-buffer ()
+      "Move the entry at point to another heading in the current buffer."
+      (interactive)
+      (let ((org-refile-targets '((nil :maxlevel . 5))))
+        (org-refile)))
+
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((emacs-lisp . t)
+       (R . t)
+       (shell . t)
+       (perl . t)
+       (java . t)
+       (ruby . t)
+       (python . t)
+       (js . t)
+       (C . t)
+       (haskell . t)
+       (ml-xquery . t)
+       (ml-javascript . t)
+       (ml-sparql . t)
+       (ml-marklogic . t)
+       ))
+
+
+    (custom-set-variables
+     '(org-confirm-babel-evaluate nil))
+
+    (add-hook 'window-setup-hook 'delete-other-windows)
+    (setq ns-pop-up-frames nil)
+
+    (add-hook 'org-capture-mode-hook 'sticky-window-delete-other-windows)
+
+    (use-package org-bullets
+      :init
+      (setq org-bullets-bullet-list '("∙"))
+      (add-hook 'org-mode-hook 'org-bullets-mode))
+
+    (use-package org-superstar
+      :config
+      (setq org-superstar-special-todo-items t)
+      (add-hook 'org-mode-hook (lambda ()
+                                 (org-superstar-mode 1))))
+
+
+
+    ;; (use-package org-roam
+    ;;   :ensure t
+    ;;   :custom
+    ;;   (org-roam-directory (file-truename "/Users/jimfuller/org-roam/"))
+    ;;   :bind (("C-c n l" . org-roam-buffer-toggle)
+    ;;          ("C-c n f" . org-roam-node-find)
+    ;;          ("C-c n g" . org-roam-graph)
+    ;;          ("C-c n i" . org-roam-node-insert)
+    ;;          ("C-c n c" . org-roam-capture)
+    ;;          ;; Dailies
+    ;;          ("C-c n j" . org-roam-dailies-capture-today))
+    ;;   :config
+    ;;   ;; If you're using a vertical completion framework, you might want a more informative completion interface
+    ;;   (setq org-roam-node-display-template (concat "${title:*} " (propertize "${tags:10}" 'face 'org-tag)))
+    ;;   (org-roam-db-autosync-mode)
+    ;;   ;; If using org-roam-protocol
+    ;;   (require 'org-roam-protocol))
+
+
+  #+end_src
+* Mail
+  #+begin_src emacs-lisp
+
+    ;; (use-package mu4e)
+    ;; (use-package smtpmail)
+    ;; (use-package org-mu4e)
+
+  #+end_src
+* python
+
+  #+begin_src emacs-lisp
+
+       (setq
+        python-shell-interpreter "ipython"
+        python-shell-interpreter-args "-i")
+
+       (use-package elpy
+         :ensure t
+         :init
+         (elpy-enable))
+
+  #+end_src
+* python
+#+begin_src emacs-lisp
+  (setq
+   python-shell-interpreter "ipython"
+   python-shell-interpreter-args "-i")
+
+#+end_src
+*
+* c
+* Markup
+
+ #+begin_src emacs-lisp
+   (use-package markdown-mode
+     :mode ("\\.md$" . gfm-mode))
+ #+end_src
+* colors
+#+begin_src emacs-lisp
+  (defun xah-syntax-color-hex ()
+    "Syntax color text of the form 「#ff1100」 and 「#abc」 in current buffer.
+  URL `http://ergoemacs.org/emacs/emacs_CSS_colors.html'
+  Version 2017-03-12"
+    (interactive)
+    (font-lock-add-keywords
+     nil
+     '(("#[[:xdigit:]]\\{3\\}"
+        (0 (put-text-property
+            (match-beginning 0)
+            (match-end 0)
+            'face (list :background
+                        (let* (
+                               (ms (match-string-no-properties 0))
+                               (r (substring ms 1 2))
+                               (g (substring ms 2 3))
+                               (b (substring ms 3 4)))
+                          (concat "#" r r g g b b))))))
+       ("#[[:xdigit:]]\\{6\\}"
+        (0 (put-text-property
+            (match-beginning 0)
+            (match-end 0)
+            'face (list :background (match-string-no-properties 0)))))))
+    (font-lock-flush))
+  (add-hook 'css-mode-hook 'xah-syntax-color-hex)
+  (add-hook 'php-mode-hook 'xah-syntax-color-hex)
+  (add-hook 'html-mode-hook 'xah-syntax-color-hex)
+  (add-hook 'org-mode-hook 'xah-syntax-color-hex)
+
+#+end_src
+
+* rust
+#+begin src
+(setq x-select-enable-clipboard t)
+
+(use-package smartparens :ensure t
+  :config (require 'smartparens-rust))
+
+(use-package rustic
+  :ensure
+  :config
+
+  ;; comment to disable rustfmt on save
+  (setq rustic-format-on-save t))
+
+(use-package yasnippet
+  :ensure
+  :config
+  (yas-reload-all)
+  (add-hook 'prog-mode-hook 'yas-minor-mode)
+  (add-hook 'text-mode-hook 'yas-minor-mode))
+  :ensure
+  :custom
+  (company-idle-delay 0.5) ;; how long to wait until popup
+  ;; (company-begin-commands nil) ;; uncomment to disable popup
+  :bind
+  (:map company-mode-map
+	("<tab>". tab-indent-or-complete)
+	("TAB". tab-indent-or-complete))
+  (:map company-active-map
+	      ("C-n". company-select-next)
+	      ("C-p". company-select-previous)
+	      ("M-<". company-select-first)
+	      ("M->". company-select-last)))
+
+(defun company-yasnippet-or-completion ()
+  (interactive)
+  (or (do-yas-expand)
+      (company-complete-common)))
+
+(defun check-expansion ()
+  (save-excursion
+    (if (looking-at "\\_>") t
+      (backward-char 1)
+      (if (looking-at "\\.") t
+        (backward-char 1)
+        (if (looking-at "::") t nil)))))
+
+(defun do-yas-expand ()
+  (let ((yas/fallback-behavior 'return-nil))
+    (yas/expand)))
+
+(defun tab-indent-or-complete ()
+  (interactive)
+  (if (minibufferp)
+      (minibuffer-complete)
+    (if (or (not yas/minor-mode)
+            (null (do-yas-expand)))
+        (if (check-expansion)
+            (company-complete-common)
+          (indent-for-tab-command)))))
+          
+#+end_src
+* last
+#+begin_src emacs-lisp
+
+  (require 'kmacro)
+  (defalias 'kmacro-insert-macro 'insert-kbd-macro)
+  (define-key kmacro-keymap (kbd "I") #'kmacro-insert-macro)
+
+  (provide 'init)
+#+end_src
